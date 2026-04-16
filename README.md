@@ -28,14 +28,31 @@
 
 | 項目 | 値 |
 |---|---|
-| VM | Oracle Cloud Ampere A1 1GB (`stg-vm`) |
-| Public IP | `161.33.35.81` |
-| ドメイン | `stg.open-regime.com` (Cloudflare DNS、**Proxy OFF**) |
-| TLS | Let's Encrypt (`certbot certonly --standalone`) |
+| VM | Oracle Cloud 無料枠 |
+| ドメイン | STG 専用サブドメイン (Cloudflare DNS proxy 経由) |
+| TLS | Cloudflare Origin Certificate (本番と同じ wildcard 証明書を流用) |
 | デプロイディレクトリ | `/opt/open-regime/` |
 | Compose ファイル | `docker-compose.stg.yml` |
 
+※ 具体的な IP / ホスト名 / ドメイン / 証明書配置などは GitHub Secrets (`VPS_STG_HOST` など) と STG VM 側の `/opt/open-regime/.env` にのみ置く (このリポには書かない)。
+
 デプロイの流れ: このリポの `main` に push → GitHub Actions (`.github/workflows/deploy-stg.yml`) → STG VM に SCP でイメージ転送 → `docker compose -f docker-compose.stg.yml up -d`
+
+### DB スキーマの初期投入 (手動)
+
+`db/init/01_schema.sql` は機密扱いで git 管理しない方針 (本番も同様)。新しい STG VM に初めてデプロイする場合は以下を手動で実行:
+
+```bash
+# 1. ローカルの本番 clone から SCP
+scp open-regime/db/init/01_schema.sql <stg-vm>:/tmp/
+# 2. VM 上で /opt/open-regime/db/init/ に配置
+ssh <stg-vm> 'sudo mv /tmp/01_schema.sql /opt/open-regime/db/init/ && \
+  sudo chown deploy:deploy /opt/open-regime/db/init/01_schema.sql'
+# 3. 既に postgres が起動済みの場合は psql で適用
+ssh <stg-vm> 'sudo docker compose -f /opt/open-regime/docker-compose.stg.yml \
+  --env-file /opt/open-regime/.env exec -T postgres \
+  psql -U app -d open_regime -f /docker-entrypoint-initdb.d/01_schema.sql'
+```
 
 ---
 
