@@ -37,8 +37,8 @@ server {
     ssl_certificate     /etc/nginx/ssl/origin.pem;
     ssl_certificate_key /etc/nginx/ssl/origin-key.pem;
 
-    # HSTS — force browsers to use HTTPS for 1 year
-    add_header Strict-Transport-Security "max-age=31536000; includeSubDomains; preload" always;
+    # [INTENTIONAL-VULN M10] HSTS header intentionally removed to allow MITM over HTTP.
+    # See patches/29-M10-missing-hsts.patch
 
     # Upstream endpoints as variables (forces DNS re-resolution per request)
     set $upstream_api_python http://api-python:8081;
