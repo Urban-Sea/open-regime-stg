@@ -1,4 +1,4 @@
-name: Deploy to VPS
+name: Deploy to STG VPS
 
 on:
   push:
@@ -9,11 +9,11 @@ on:
       - 'nginx/**'
       - 'db/**'
       - 'scripts/**'
-      - 'docker-compose.prod.yml'
+      - 'docker-compose.stg.yml'
   workflow_dispatch:
 
 concurrency:
-  group: deploy-vps
+  group: deploy-stg
   cancel-in-progress: false
 
 jobs:
@@ -48,12 +48,11 @@ jobs:
               - 'app/batch/**'
               - 'app/backend/analysis/**'
             infra:
-              - 'docker-compose.prod.yml'
+              - 'docker-compose.stg.yml'
               - 'nginx/**'
               - 'db/**'
               - 'scripts/**'
 
-      # workflow_dispatch → build all
       - name: Force all on manual trigger
         id: force
         if: github.event_name == 'workflow_dispatch'
@@ -145,9 +144,9 @@ jobs:
           path: open-regime-batch.tar.gz
           retention-days: 1
 
-  # ─── Job 3: Deploy to VPS ───
+  # ─── Job 3: Deploy to STG VPS ───
   deploy:
-    name: Deploy to VPS
+    name: Deploy to STG VPS
     needs: [detect-changes, build-api-python, build-api-go, build-frontend, build-admin, build-batch]
     if: |
       !failure() && !cancelled() && (
@@ -162,7 +161,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      # Download all image artifacts (only those that exist)
       - name: Download image artifacts
         uses: actions/download-artifact@v4
         with:
@@ -171,42 +169,39 @@ jobs:
           path: ./images
         continue-on-error: true
 
-      # SCP infrastructure files
       - name: Transfer infra files
         uses: appleboy/scp-action@v0.1.7
         with:
-          host: ${{ secrets.VPS_HOST }}
-          username: ${{ secrets.VPS_USER }}
-          key: ${{ secrets.VPS_SSH_KEY }}
-          source: "docker-compose.prod.yml,nginx/,db/init/,scripts/"
+          host: ${{ secrets.VPS_STG_HOST }}
+          username: ${{ secrets.VPS_STG_USER }}
+          key: ${{ secrets.VPS_STG_SSH_KEY }}
+          source: "docker-compose.stg.yml,nginx/,db/init/,scripts/"
           target: /opt/open-regime
           overwrite: true
 
-      # SCP image tar.gz files (if any were built)
       - name: Transfer images
         uses: appleboy/scp-action@v0.1.7
         if: hashFiles('images/*.tar.gz') != ''
         with:
-          host: ${{ secrets.VPS_HOST }}
-          username: ${{ secrets.VPS_USER }}
-          key: ${{ secrets.VPS_SSH_KEY }}
+          host: ${{ secrets.VPS_STG_HOST }}
+          username: ${{ secrets.VPS_STG_USER }}
+          key: ${{ secrets.VPS_STG_SSH_KEY }}
           source: "images/"
           target: /opt/open-regime
           overwrite: true
 
-      # SSH: load images, deploy, health check
       - name: Deploy
         uses: appleboy/ssh-action@v1
         with:
-          host: ${{ secrets.VPS_HOST }}
-          username: ${{ secrets.VPS_USER }}
-          key: ${{ secrets.VPS_SSH_KEY }}
+          host: ${{ secrets.VPS_STG_HOST }}
+          username: ${{ secrets.VPS_STG_USER }}
+          key: ${{ secrets.VPS_STG_SSH_KEY }}
           script: |
             cd /opt/open-regime
 
             # Save old image IDs for rollback
             for img in api-python api-go frontend admin batch; do
-              docker inspect "open-regime-$img:latest" --format='{{.Id}}' 2>/dev/null > "/tmp/old-$img-id" || true
+              docker inspect "open-regime-$img:latest" --format='{{.Id}}' 2>/dev/null > "/tmp/old-stg-$img-id" || true
             done
 
             # Load new images (if any tar.gz exist)
@@ -215,13 +210,13 @@ jobs:
             done
 
             # Deploy
-            docker compose -f docker-compose.prod.yml up -d --remove-orphans --pull never
+            docker compose -f docker-compose.stg.yml up -d --remove-orphans --pull never
 
             # Health check with retry (max 60s)
             echo "Waiting for health check..."
             HEALTHY=false
             for i in $(seq 1 30); do
-              if curl -sf -H "Host: open-regime.com" http://localhost/health > /dev/null 2>&1; then
+              if curl -sf -H "Host: stg.open-regime.com" http://localhost/health > /dev/null 2>&1; then
                 HEALTHY=true
                 echo "Health check passed (attempt $i)"
                 break
@@ -236,9 +231,9 @@ jobs:
             else
               echo "Health check failed after 30 attempts — rolling back"
               for img in api-python api-go frontend admin batch; do
-                OLD_ID=$(cat "/tmp/old-$img-id" 2>/dev/null)
+                OLD_ID=$(cat "/tmp/old-stg-$img-id" 2>/dev/null)
                 [ -n "$OLD_ID" ] && docker tag "$OLD_ID" "open-regime-$img:latest"
               done
-              docker compose -f docker-compose.prod.yml up -d --pull never
+              docker compose -f docker-compose.stg.yml up -d --pull never
               exit 1
             fi
