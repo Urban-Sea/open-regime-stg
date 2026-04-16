@@ -1,0 +1,498 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar: var(--sidebar);
+  --color-chart-5: var(--chart-5);
+  --color-chart-4: var(--chart-4);
+  --color-chart-3: var(--chart-3);
+  --color-chart-2: var(--chart-2);
+  --color-chart-1: var(--chart-1);
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --radius-2xl: calc(var(--radius) + 8px);
+  --radius-3xl: calc(var(--radius) + 12px);
+  --radius-4xl: calc(var(--radius) + 16px);
+  --color-brand-primary: var(--brand-primary);
+  --color-brand-primary-700: var(--brand-primary-700);
+  --color-brand-accent: var(--brand-accent);
+  --color-brand-danger: var(--brand-danger);
+
+  /* ============================================================
+     Digital Agency Dashboard Tokens (出典: デジタル庁 PDL1.0)
+     https://www.digital.go.jp/resources/dashboard-guidebook
+     ============================================================ */
+
+  /* Brand scale (情報・リンク用 — 判断色とは混ぜない) */
+  --color-brand-100: var(--brand-100);
+  --color-brand-200: var(--brand-200);
+  --color-brand-400: var(--brand-400);
+  --color-brand-500: var(--brand-500);
+  --color-brand-700: var(--brand-700);
+  --color-brand-900: var(--brand-900);
+
+  /* Signal Safe (緑) */
+  --color-signal-safe-100: var(--signal-safe-100);
+  --color-signal-safe-300: var(--signal-safe-300);
+  --color-signal-safe-400: var(--signal-safe-400);
+  --color-signal-safe-500: var(--signal-safe-500);
+  --color-signal-safe-900: var(--signal-safe-900);
+
+  /* Signal Caution (橙) */
+  --color-signal-caution-100: var(--signal-caution-100);
+  --color-signal-caution-300: var(--signal-caution-300);
+  --color-signal-caution-400: var(--signal-caution-400);
+  --color-signal-caution-500: var(--signal-caution-500);
+  --color-signal-caution-900: var(--signal-caution-900);
+
+  /* Signal Danger (赤) */
+  --color-signal-danger-100: var(--signal-danger-100);
+  --color-signal-danger-300: var(--signal-danger-300);
+  --color-signal-danger-400: var(--signal-danger-400);
+  --color-signal-danger-500: var(--signal-danger-500);
+  --color-signal-danger-900: var(--signal-danger-900);
+
+  /* Neutral */
+  --color-neutral-50: var(--neutral-50);
+  --color-neutral-100: var(--neutral-100);
+  --color-neutral-200: var(--neutral-200);
+  --color-neutral-300: var(--neutral-300);
+  --color-neutral-500: var(--neutral-500);
+  --color-neutral-700: var(--neutral-700);
+  --color-neutral-900: var(--neutral-900);
+
+  /* Heatmap (diverging — state×phase matrix 等) */
+  --color-heatmap-min: var(--heatmap-min);
+  --color-heatmap-center: var(--heatmap-center);
+  --color-heatmap-max: var(--heatmap-max);
+}
+
+:root {
+  --radius: 0.625rem;
+
+  /* ============================================================
+     Digital Agency tokens — Open Regime ダッシュボード正典
+     ============================================================ */
+
+  /* Brand scale (情報・リンク。判断色には使わない) */
+  --brand-100: #E8F1FE;
+  --brand-200: #C5D7FB;
+  --brand-400: #7096F8;
+  --brand-500: #3460FB;
+  --brand-700: #0017C1;
+  --brand-900: #0017C1;
+
+  /* Signal Safe (緑) */
+  --signal-safe-100: #E6F5EC;
+  --signal-safe-300: #9BD4B5;
+  --signal-safe-400: #51B883;
+  --signal-safe-500: #259D63;
+  --signal-safe-900: #115A36;
+
+  /* Signal Caution (橙) */
+  --signal-caution-100: #FFEEE2;
+  --signal-caution-300: #FFC199;
+  --signal-caution-400: #FF8D44;
+  --signal-caution-500: #FB5B01;
+  --signal-caution-900: #AC3E00;
+
+  /* Signal Danger (赤) */
+  --signal-danger-100: #FDEEEE;
+  --signal-danger-300: #FFBBBB;
+  --signal-danger-400: #FF7171;
+  --signal-danger-500: #FE3939;
+  --signal-danger-900: #CE0000;
+
+  /* Neutral */
+  --neutral-50: #F8F8FB;
+  --neutral-100: #F2F2F2;
+  --neutral-200: #E6E6E6;
+  --neutral-300: #CCCCCC;
+  --neutral-500: #999999;
+  --neutral-700: #767676;
+  --neutral-900: #4D4D4D;
+
+  /* Heatmap (diverging) */
+  --heatmap-min: #FFBBBB;
+  --heatmap-center: #E6E6E6;
+  --heatmap-max: #C5D7FB;
+
+  /* ============================================================
+     Legacy aliases (既存コード互換)
+     ============================================================ */
+  --brand-primary: var(--brand-500);
+  --brand-primary-700: var(--brand-700);
+  --brand-accent: #a78bfa;
+  --brand-danger: var(--signal-danger-500);
+  --background: #ffffff;
+  --foreground: #0f172a; /* slate-900, landing と統一 */
+  --card: #ffffff;
+  --card-foreground: #111111;
+  --popover: #ffffff;
+  --popover-foreground: #111111;
+  --primary: #18181b;
+  --primary-foreground: #fafafa;
+  --secondary: #f4f4f5;
+  --secondary-foreground: #18181b;
+  --muted: #f4f4f5;
+  --muted-foreground: #52525b;
+  --accent: #f4f4f5;
+  --accent-foreground: #18181b;
+  --destructive: #dc2626;
+  --border: #e4e4e7;
+  --input: #e4e4e7;
+  --ring: #a1a1aa;
+  /* Recharts デフォルトパレット — デジタル庁トークンに整合 */
+  --chart-1: var(--brand-500);
+  --chart-2: var(--signal-safe-500);
+  --chart-3: var(--signal-caution-500);
+  --chart-4: var(--signal-danger-500);
+  --chart-5: var(--brand-400);
+  --sidebar: oklch(0.985 0 0);
+  --sidebar-foreground: oklch(0.145 0 0);
+  --sidebar-primary: oklch(0.205 0 0);
+  --sidebar-primary-foreground: oklch(0.985 0 0);
+  --sidebar-accent: oklch(0.97 0 0);
+  --sidebar-accent-foreground: oklch(0.205 0 0);
+  --sidebar-border: oklch(0.922 0 0);
+  --sidebar-ring: oklch(0.708 0 0);
+}
+
+/* dark mode は 2026-04-09 に廃止。
+   旧 .dark { ... } CSS 変数オーバーライドはこの位置にあったが削除済み。
+   既存の dark:* Tailwind ユーティリティおよび .dark .foo セレクタは
+   ThemeProvider/<html class="dark"> が無いため発火しない死コードとして残存。
+   完全削除は別 PR で行う予定。 */
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
+/* ============================================================
+   Plumbing Page - Bloomberg Terminal Animations
+   ============================================================ */
+
+@keyframes plumb-fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes plumb-scale-in {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes plumb-gauge-fill {
+  from {
+    width: 0%;
+  }
+}
+
+@keyframes plumb-ring-fill {
+  from {
+    stroke-dashoffset: 282.74;
+  }
+}
+
+@keyframes plumb-shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+@keyframes plumb-glow-pulse {
+  0%, 100% {
+    opacity: 0.4;
+  }
+  50% {
+    opacity: 0.8;
+  }
+}
+
+@keyframes plumb-data-flash {
+  0% {
+    background-color: rgba(59, 130, 246, 0.15);
+  }
+  100% {
+    background-color: transparent;
+  }
+}
+
+@keyframes plumb-flow-pulse {
+  0%, 100% {
+    opacity: 0.3;
+  }
+  50% {
+    opacity: 0.7;
+  }
+}
+
+.plumb-animate-in {
+  animation: plumb-fade-up 0.5s ease-out both;
+}
+
+.plumb-animate-scale {
+  animation: plumb-scale-in 0.4s ease-out both;
+}
+
+.plumb-stagger-1 { animation-delay: 0.05s; }
+.plumb-stagger-2 { animation-delay: 0.1s; }
+.plumb-stagger-3 { animation-delay: 0.15s; }
+.plumb-stagger-4 { animation-delay: 0.2s; }
+.plumb-stagger-5 { animation-delay: 0.25s; }
+.plumb-stagger-6 { animation-delay: 0.3s; }
+.plumb-stagger-7 { animation-delay: 0.35s; }
+.plumb-stagger-8 { animation-delay: 0.4s; }
+
+.plumb-gauge-bar {
+  animation: plumb-gauge-fill 1s cubic-bezier(0.4, 0, 0.2, 1) 0.3s both;
+}
+
+.plumb-ring-progress {
+  animation: plumb-ring-fill 1.2s cubic-bezier(0.4, 0, 0.2, 1) 0.4s both;
+}
+
+.plumb-glow {
+  animation: plumb-glow-pulse 3s ease-in-out infinite;
+}
+
+.dark .plumb-shimmer-bg {
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.03) 50%,
+    transparent 100%
+  );
+  background-size: 200% 100%;
+  animation: plumb-shimmer 3s ease-in-out infinite;
+}
+:root:not(.dark) .plumb-shimmer-bg {
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(0, 0, 0, 0.02) 50%,
+    transparent 100%
+  );
+  background-size: 200% 100%;
+  animation: plumb-shimmer 3s ease-in-out infinite;
+}
+
+.plumb-data-update {
+  animation: plumb-data-flash 1.5s ease-out;
+}
+
+/**
+ * Card base — landing ページのカードと同じスタイル.
+ * 白背景 + slate-200 細枠 + 軽い shadow. Glass blur は廃止.
+ * クラス名 (.plumb-glass) は歴史的経緯で残しているだけで、もはや glass ではない.
+ */
+.plumb-glass {
+  background: #ffffff;
+  border: 1px solid #E2E8F0; /* slate-200 */
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+}
+
+.plumb-glass-hover {
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+.plumb-glass-hover:hover {
+  border-color: #CBD5E1; /* slate-300 */
+  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.08);
+}
+
+/* Gradient border effect */
+.plumb-gradient-border {
+  position: relative;
+}
+.plumb-gradient-border::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  padding: 1px;
+  border-radius: inherit;
+  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  mask-composite: exclude;
+  -webkit-mask-composite: xor;
+  pointer-events: none;
+}
+
+/* Flow pipe animation */
+.plumb-flow-pipe {
+  position: relative;
+  overflow: hidden;
+}
+.dark .plumb-flow-pipe::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.04), transparent);
+  animation: plumb-shimmer 4s ease-in-out infinite;
+}
+:root:not(.dark) .plumb-flow-pipe::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(0,0,0,0.03), transparent);
+  animation: plumb-shimmer 4s ease-in-out infinite;
+}
+
+/* Score ring SVG */
+.plumb-score-ring {
+  transform: rotate(-90deg);
+  transform-origin: center;
+}
+
+/* ============================================================
+   Recharts overrides for plumbing page
+   ============================================================ */
+
+/* Chart grid CSS variable for CartesianGrid stroke */
+:root {
+  --plumb-grid: rgba(0, 0, 0, 0.08);
+}
+.dark {
+  --plumb-grid: rgba(255, 255, 255, 0.04);
+}
+
+.dark .plumb-chart .recharts-cartesian-grid-horizontal line,
+.dark .plumb-chart .recharts-cartesian-grid-vertical line {
+  stroke: rgba(255, 255, 255, 0.04);
+}
+:root:not(.dark) .plumb-chart .recharts-cartesian-grid-horizontal line,
+:root:not(.dark) .plumb-chart .recharts-cartesian-grid-vertical line {
+  stroke: rgba(0, 0, 0, 0.08);
+}
+
+.dark .plumb-chart .recharts-text {
+  fill: #71717a;
+  font-family: var(--font-geist-mono), ui-monospace, monospace;
+  font-size: 10px;
+}
+:root:not(.dark) .plumb-chart .recharts-text {
+  fill: #52525b;
+  font-family: var(--font-geist-mono), ui-monospace, monospace;
+  font-size: 10px;
+}
+
+.dark .plumb-chart .recharts-tooltip-cursor {
+  stroke: rgba(255, 255, 255, 0.08);
+}
+:root:not(.dark) .plumb-chart .recharts-tooltip-cursor {
+  stroke: rgba(0, 0, 0, 0.1);
+}
+
+.plumb-chart .recharts-reference-line-label text {
+  font-size: 9px;
+  font-family: var(--font-geist-mono), ui-monospace, monospace;
+}
+.dark .plumb-chart .recharts-reference-line-label text {
+  fill: #71717a;
+}
+:root:not(.dark) .plumb-chart .recharts-reference-line-label text {
+  fill: #52525b;
+}
+
+/* ============================================================
+   Plumbing Tab styles
+   ============================================================ */
+
+.dark .plumb-tabs [data-slot="tabs-list"] {
+  background: rgba(17, 17, 17, 0.6);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+:root:not(.dark) .plumb-tabs [data-slot="tabs-list"] {
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+.dark .plumb-tabs [data-slot="tabs-trigger"] {
+  color: #71717a;
+  transition: color 0.2s, background 0.2s;
+}
+:root:not(.dark) .plumb-tabs [data-slot="tabs-trigger"] {
+  color: #71717a;
+  transition: color 0.2s, background 0.2s;
+}
+
+.dark .plumb-tabs [data-slot="tabs-trigger"][data-state="active"] {
+  color: #e5e5e5;
+  background: rgba(255, 255, 255, 0.06);
+}
+:root:not(.dark) .plumb-tabs [data-slot="tabs-trigger"][data-state="active"] {
+  color: #0a0a0a;
+  background: rgba(0, 0, 0, 0.06);
+}
+
+.dark .plumb-tabs [data-slot="tabs-trigger"]:hover:not([data-state="active"]) {
+  color: #a1a1aa;
+}
+:root:not(.dark) .plumb-tabs [data-slot="tabs-trigger"]:hover:not([data-state="active"]) {
+  color: #3f3f46;
+}
+
+.plumb-tabs [data-slot="tabs-trigger"]::after {
+  background: linear-gradient(90deg, #3b82f6, #a855f7) !important;
+}

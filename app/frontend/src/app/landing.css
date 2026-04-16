@@ -1,0 +1,18 @@
+[data-theme="landing"] {
+  /* Landing は globals.css のデジタル庁トークンを参照 (重複定義廃止) */
+  --lp-primary: var(--brand-500);
+  --lp-primary-700: var(--brand-700);
+  --lp-accent: #a78bfa;
+  --lp-danger: var(--signal-danger-500);
+  --lp-bg: #FFFFFF;
+  --lp-fg: #0F172A;
+  background: var(--lp-bg);
+  color: var(--lp-fg);
+}
+
+/* layout.tsx の <main className="w-full py-6"> が landing ページの上下に
+   24px の余白を作るのを打ち消す。dashboard ページには影響しない。 */
+main:has(> [data-theme="landing"]) {
+  padding-top: 0;
+  padding-bottom: 0;
+}

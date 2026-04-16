@@ -1,0 +1,131 @@
+# Open Regime - Production nginx configuration
+# ${PROXY_SECRET} is replaced by envsubst at container startup
+#
+# NOTE: upstream blocks are NOT used. Instead, proxy_pass uses variables
+# so that nginx re-resolves DNS via the resolver directive on every request.
+# This prevents stale IP caching when containers restart and get new IPs.
+
+# Docker internal DNS — re-resolve every 10s
+resolver 127.0.0.11 valid=10s ipv6=off;
+
+# Block direct IP access and unknown Host headers
+server {
+    listen 80 default_server;
+    server_name _;
+    return 444;
+}
+
+server {
+    listen 443 ssl default_server;
+    server_name _;
+    ssl_certificate     /etc/nginx/ssl/origin.pem;
+    ssl_certificate_key /etc/nginx/ssl/origin-key.pem;
+    return 444;
+}
+
+# HTTP → HTTPS redirect
+server {
+    listen 80;
+    server_name open-regime.com admin.open-regime.com;
+    return 301 https://$host$request_uri;
+}
+
+server {
+    listen 443 ssl;
+    server_name open-regime.com;
+
+    ssl_certificate     /etc/nginx/ssl/origin.pem;
+    ssl_certificate_key /etc/nginx/ssl/origin-key.pem;
+
+    # HSTS — force browsers to use HTTPS for 1 year
+    add_header Strict-Transport-Security "max-age=31536000; includeSubDomains; preload" always;
+
+    # Upstream endpoints as variables (forces DNS re-resolution per request)
+    set $upstream_api_python http://api-python:8081;
+    set $upstream_api_go     http://api-go:8080;
+    set $upstream_frontend   http://frontend:3000;
+
+    # Health check
+    location /health {
+        access_log off;
+        return 200 'ok';
+        add_header Content-Type text/plain;
+    }
+
+    # Python compute API — inject x-proxy-secret for CSRF protection
+    location ~ ^/api/(signal|regime|exit|stock)(/|$) {
+        proxy_pass $upstream_api_python;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto https;
+        proxy_set_header X-Proxy-Secret ${PROXY_SECRET};
+        proxy_read_timeout 30s;
+    }
+
+    # Go CRUD API
+    location /api/ {
+        # Block external cache purge — warmup uses Docker internal network directly
+        if ($arg_purge) {
+            return 403;
+        }
+        proxy_pass $upstream_api_go;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto https;
+        proxy_read_timeout 10s;
+    }
+
+    # Redirect old /admin/ path to subdomain
+    location = /admin { return 301 https://admin.open-regime.com/; }
+    location /admin/ { return 301 https://admin.open-regime.com/; }
+
+    # Frontend (catch-all)
+    location / {
+        proxy_pass $upstream_frontend;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "upgrade";
+    }
+}
+
+# Admin subdomain (protected by CF Access)
+server {
+    listen 443 ssl;
+    server_name admin.open-regime.com;
+
+    ssl_certificate     /etc/nginx/ssl/origin.pem;
+    ssl_certificate_key /etc/nginx/ssl/origin-key.pem;
+
+    add_header Strict-Transport-Security "max-age=31536000; includeSubDomains; preload" always;
+
+    # Upstream endpoints as variables (forces DNS re-resolution per request)
+    set $upstream_api_go_admin     http://api-go:8080;
+    set $upstream_admin_frontend   http://admin-frontend:3002;
+
+    # Go API (so admin-frontend can use relative /api/ paths)
+    location /api/ {
+        if ($arg_purge) {
+            return 403;
+        }
+        proxy_pass $upstream_api_go_admin;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto https;
+        proxy_read_timeout 10s;
+    }
+
+    # Admin Frontend
+    location / {
+        proxy_pass $upstream_admin_frontend;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "upgrade";
+    }
+}
